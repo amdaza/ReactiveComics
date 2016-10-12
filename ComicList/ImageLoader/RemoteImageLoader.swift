@@ -21,6 +21,8 @@ public final class RemoteImageLoader: ImageLoader {
     private let cache: ImageCache
     private let fetcher: HTTPFetcher
 
+    // Dependency injection. 
+    // Important for this class to be testeable
     init(cache: ImageCache, fetcher: HTTPFetcher) {
         self.cache = cache
         self.fetcher = fetcher
@@ -30,6 +32,7 @@ public final class RemoteImageLoader: ImageLoader {
         // If the image is already in the cache, just return it
         if let image = cache.image(for: url) {
             return Observable.just(image)
+            // If not called in main scheduler, it would be necessary to observe on it
         }
 
         // Otherwise, we have to fetch the data for the corresponding URL

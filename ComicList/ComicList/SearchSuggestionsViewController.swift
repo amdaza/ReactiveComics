@@ -23,6 +23,9 @@ class SearchSuggestionsViewController: UITableViewController {
 
     // MARK: - Initialization
 
+    // Dependency injection. 
+    // Useful for tests, implementation separated
+    // Won't call in this class to Api REST
     init(viewModel: SearchSuggestionsViewModelType = SearchSuggestionsViewModel()) {
         self.viewModel = viewModel
         super.init(style: .plain)
@@ -78,6 +81,7 @@ class SearchSuggestionsViewController: UITableViewController {
             .addDisposableTo(disposeBag)
 
         // When a suggestion is selected we need to call `didSelectSuggestion`
+        // Like didSelectRowAtIndexPath
         tableView.rx
             .modelSelected(String.self)
             .subscribe(onNext: { [weak self] suggestion in

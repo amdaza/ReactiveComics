@@ -8,6 +8,8 @@
 
 import Foundation
 import RxSwift
+import ComicContainer
+import ComicService
 
 protocol SearchResultsViewModelType: class {
 
@@ -31,32 +33,54 @@ protocol SearchResultsViewModelType: class {
     func load(nextPage trigger: Observable<Void>) -> Observable<Int>
 }
 
-// FIXME: This is a mock implementation
+
 final class SearchResultsViewModel: SearchResultsViewModelType {
 
     let query: String
     var didLoadPage: () -> Void = {}
 
     public var numberOfItems: Int {
-        return items.count
+        return results.numberOfVolumes
     }
 
     public func item(at position: Int) -> Volume {
         precondition(position < numberOfItems)
-        return items[position]
+        return results.volume(atIndex: position)
     }
 
     public func load(nextPage trigger: Observable<Void>) -> Observable<Int> {
         return doLoad(page: 1, nextPage: trigger)
     }
 
-    private var items: [Volume] = []
+    //private var items: [Volume] = []
+    
+    private let client: Client
+    private let container: VolumeContainerType
+    private let results: VolumeResultsType
+    private let disposeBag = DisposeBag()
 
-    init(query: String) {
+    init(query: String,
+         client: Client = Client(),
+         container: VolumeContainerType = VolumeContainer.temporary()) {
+        
         self.query = query
+        self.client = client
+        self.container = container
+        
+        container.load()
+            .subscribe()
+            .addDisposableTo(disposeBag)
+        
+        results = container.all()
+        
+        results.didUpdate = { [weak self] in
+            // Creating ciclic reference, need to capture list
+            self?.didLoadPage()
+        }
     }
 
     private func doLoad(page current: Int, nextPage trigger: Observable<Void>) -> Observable<Int> {
+        /*
         items.append(contentsOf: [
             Volume(identifier: 38656,
                    title: "Doctor Strange: The Oath",
@@ -71,8 +95,29 @@ final class SearchResultsViewModel: SearchResultsViewModelType {
                    coverURL: URL(string: "http://comicvine.gamespot.com/api/image/scale_small/1704425-the_thanos_imperative_hc.jpg"),
                    publisherName: "Marvel")
         ])
-        didLoadPage()
-
-        return Observable.just(1)
+         
+         didLoadPage()
+         
+         return Observable.just(1)
+        */
+        let container = self.container
+        
+        return client.searchResults(forQuery: query, page: current)
+            /*.do(onNext: {
+                print("page: \(current)")
+            })*/
+            .flatMap { volumes in
+                return container.save(volumes: volumes)
+            }
+            // We're sure that self will exists, unowned is not an optional (not like weak)
+            .flatMap { [unowned self] _ in
+                return Observable.concat([
+                    Observable.just(current),
+                    Observable.never().takeUntil(trigger),
+                    self.doLoad(page: (current + 1), nextPage: trigger)
+                ])
+            }
+        
+        
     }
 }

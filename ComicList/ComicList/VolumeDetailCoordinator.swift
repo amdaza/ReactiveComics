@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import ComicContainer
 
 /// Coordinates the presentation of a volume detail
 final class VolumeDetailCoordinator: Coordinator {
@@ -22,6 +23,7 @@ final class VolumeDetailCoordinator: Coordinator {
     override func start() {
         let viewController = VolumeDetailViewController(volume: volume)
 
+        // Destroy when view is dismissed
         viewController.didFinish = { [weak self] in
             guard let `self` = self else {
                 return

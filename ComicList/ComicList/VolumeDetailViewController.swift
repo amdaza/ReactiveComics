@@ -8,6 +8,7 @@
 
 import UIKit
 import RxSwift
+import ComicContainer
 
 /// Displays the details about a volume
 class VolumeDetailViewController: UIViewController {
@@ -53,6 +54,7 @@ class VolumeDetailViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
 
+        // Here is sure it's dissapearing
         if isMovingFromParentViewController || isBeingDismissed {
             didFinish()
         }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ComicContainer
 
 /// Represents a volume list view model
 protocol VolumeListViewModelType: class {
@@ -22,19 +23,22 @@ protocol VolumeListViewModelType: class {
 }
 
 
-// FIXME: This is a mock implementation
+
 final class VolumeListViewModel: VolumeListViewModelType {
 
     var didUpdate: () -> Void = {}
 
     var numberOfVolumes: Int {
-        return items.count
+        //return items.count
+        return results.numberOfVolumes
     }
 
     func item(at position: Int) -> Volume {
-        return items[position]
+        //return items[position]
+        return results.volume(atIndex: position)
     }
 
+    /*
     private let items: [Volume] = [
         Volume(identifier: 38656,
                title: "Doctor Strange: The Oath",
@@ -49,4 +53,20 @@ final class VolumeListViewModel: VolumeListViewModelType {
                coverURL: URL(string: "http://comicvine.gamespot.com/api/image/scale_small/1704425-the_thanos_imperative_hc.jpg"),
                publisherName: "Marvel")
     ]
+ */
+    
+    private let results: VolumeResultsType
+    
+    init(results: VolumeResultsType = VolumeContainer.instance.all()) {
+        self.results = results
+        self.results.didUpdate = { [weak self] in
+            self?.didUpdate()
+        }
+    }
+
 }
+
+
+
+
+
