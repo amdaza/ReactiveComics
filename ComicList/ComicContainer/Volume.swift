@@ -22,12 +22,11 @@ public struct Volume {
 
     /// Publisher name
     public let publisherName: String?
-    
+
     public init(identifier: Int,
                 title: String,
                 coverURL: URL?,
-                publisherName: String) {
-        
+                publisherName: String?) {
         self.identifier = identifier
         self.title = title
         self.coverURL = coverURL
@@ -36,7 +35,7 @@ public struct Volume {
 }
 
 extension Volume {
-    
+
     internal init(entry: VolumeEntry) {
         self.identifier = entry.identifier
         self.title = entry.title
@@ -44,4 +43,3 @@ extension Volume {
         self.publisherName = entry.publisher
     }
 }
-

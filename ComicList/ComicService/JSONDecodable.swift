@@ -25,11 +25,9 @@ public func decode<T: JSONDecodable>(_ dictionaries: [JSONDictionary]) -> [T] {
 
 public func decode<T: JSONDecodable>(_ data: Data) -> T? {
     guard
-        let jsonObject = try? JSONSerialization.jsonObject(with: data,
-                                                       options: []),
-        let JSONDictionary = jsonObject as? JSONDictionary,
-        let object: T = decode(JSONDictionary) else {
-            
+        let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []),
+        let jsonDictionary = jsonObject as? JSONDictionary,
+        let object: T = decode(jsonDictionary) else {
             return nil
     }
     

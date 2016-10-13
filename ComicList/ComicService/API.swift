@@ -21,7 +21,7 @@ extension API: Resource {
         case .suggestions, .search:
             return "search"
         case .description(volumeIdentifier: let identifier):
-            return "volume/4050-(\(identifier))"
+            return "volume/4050-\(identifier)"
         }
     }
     
